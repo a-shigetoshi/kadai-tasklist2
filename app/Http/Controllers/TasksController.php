@@ -11,26 +11,25 @@ class TasksController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // public function index()
-    // {
-    //      $tasks = Task::all(); 
-         
-    //      return view('tasks.index', [     
-    //         'tasks' => $tasks,        
-    //     ]);   
-    // }
+    
     public function index()
     {
-        // ユーザーがログインしているかどうかをチェック
-        if (\Auth::check()) {
-            // ログインしている場合は、ログインユーザーのタスクを取得
-            $user = \Auth::user();
-            $tasks = Task::orderBy('created_at', 'desc')->paginate(10);
-    return view('tasks.index', compact('tasks'));
-        } else {
-            // ログインしていない場合は、ログインページにリダイレクト
-            return redirect()->route('login');
+    $data = [];
+    if (\Auth::check()) { // 認証済みの場合
+        // 認証済みユーザーを取得
+        $user = \Auth::user();
+        // ユーザーの投稿の一覧を作成日時の降順で取得
+        $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+        $data = [
+            'user' => $user,
+            'tasks' => $tasks,
+        ];
+
+        // ビューでそれらのデータを使用
+        return view('tasks.index', $data);
         }
+        // 認証していない場合はログインページにリダイレクト
+        return redirect()->route('login');
     }
 
     /**
